@@ -51,24 +51,24 @@ const userList = async () => {
     }
 }
 
-const getIdByEmail = async (email) => {
+const getImgByUserId = async (userId) => {
     try{
-        const rows = await User.findAll({
+        const user = await User.findOne({
             where:{
-                email:email,
+                id: userId,
             }
         });
-        if (rows.length === 0){
-            return [new Error("not found"), "error"];
+        if (user){
+            return [user.dataValues.imageUrl, "SUCCESS"];
         }else{
-            return [rows[0], "completed"];
+            return [new Error("user not found"), "FAILURE"];
         }
     }catch(error){
-        return [error, "error"];
+        return [error, "ERROR"];
     }
 }
 
 module.exports.register = register;
 module.exports.userList = userList;
 module.exports.verify = verify;
-module.exports.getIdByEmail = getIdByEmail;
+module.exports.getImgByUserId = getImgByUserId;

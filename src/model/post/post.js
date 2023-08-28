@@ -32,14 +32,13 @@ const totalPostFromUserIdArray = async (array) => {
 
 const getPostFromUserIdArray = async (array, currentId, value) => {
     try{
+        const option = currentId ? {id: {[Op.lt]: currentId}}: {};
         const posts = await Post.findAll({
             where:{
                 userId:{
                     [Op.in]: array
                 },
-                id:{
-                    [Op.lt]: currentId
-                }
+                ...option
             },
             limit: value
         });
@@ -60,7 +59,17 @@ const getLargestId = async () => {
     }
 
 }
+
+const postsList = async () => {
+    try{
+        const posts = await Post.findAll();
+        return [posts, "SUCCESS"];
+    }catch(error){
+        return [error, "ERROR"];
+    }
+}
 module.exports.register = register;
 module.exports.getPostFromUserIdArray = getPostFromUserIdArray;
 module.exports.totalPostFromUserIdArray = totalPostFromUserIdArray;
 module.exports.getLargestId = getLargestId;
+module.exports.postsList = postsList;

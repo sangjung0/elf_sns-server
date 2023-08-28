@@ -66,6 +66,25 @@ const makeFakePost = async(seed, length, users) => {
 
 }
 
+const makeFakeComment = async(seed, length, users, posts) => {
+    faker.seed(seed);
+    const userLength = users.length;
+    const postLength = posts.length;
+
+    const comments = Array.from({length:length}).map(()=>{
+        const userId = users[faker.number.int({min: 0, max:userLength-1})];
+        const postId = posts[faker.number.int({min: 0, max:postLength-1})];
+        return {
+            userId,
+            postId,
+            content: faker.word.words({ count: { min: 1, max: 10 } })
+        }
+    })
+
+    return comments;
+}
+
 module.exports.makeFakeFriend = makeFakeFriend;
 module.exports.makeFakeUserInfo = makeFakeUserInfo;
 module.exports.makeFakePost = makeFakePost;
+module.exports.makeFakeComment = makeFakeComment;

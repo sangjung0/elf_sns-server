@@ -5,11 +5,12 @@ const router = express.Router();
 const PATH = process.env.SERVER_PATH;
 
 // model
-const {makeFakeUserInfo, makeFakeFriend, makeFakePost} = require(PATH + '/src/model/faker/faker');
+const {makeFakeUserInfo, makeFakeFriend, makeFakePost, makeFakeComment} = require(PATH + '/src/model/faker/faker');
 const {register, userList} = require(PATH + '/src/model/auth/account');
 const friend = require(PATH + '/src/model/relation/friend');
 const postLib = require(PATH + '/src/model/post/post');
 const image = require(PATH + '/src/model/post/image');
+const commentLib = require(PATH + '/src/model/post/comment');
 
 router.post('/makeUserInfo', async (req, res)=>{
     try{
@@ -79,4 +80,38 @@ router.post('/makePosts', async (req, res)=>{
         res.json({state:"ERROR"});
     }
 });
+
+router.post('/makeComments', async (req, res)=>{
+    try{
+        const seed = req.body.seed;
+        const length = req.body.length;
+        const [users, usersState] = await userList();
+        if (usersState !== "SUCCESS") {
+            throw users;
+        }
+        
+        const [posts, postsState] = await postLib.postsList();
+        if (postsState !== "SUCCESS") {
+            throw posts;
+        }
+
+        const usersArray = users.map(user => user.dataValues.id);
+        const postsArray = posts.map(post => post.dataValues.id);
+        const comments = await makeFakeComment(seed, length, usersArray, postsArray);
+        console.log(comments);
+        comments.forEach( async comment => {
+            const [data, state] = await commentLib.register(comment.content, comment.postId, comment.userId )
+            if (state !== "SUCCESS") {
+                throw data;
+            }
+        })
+        res.send(comments);
+
+    }catch(err){
+        console.error(err);
+        res.status(500);
+        res.json({state:"ERROR"});
+    }
+});
+
 module.exports = router;
