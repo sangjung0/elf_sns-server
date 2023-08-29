@@ -40,7 +40,10 @@ const getPostFromUserIdArray = async (array, currentId, value) => {
                 },
                 ...option
             },
-            limit: value
+            limit: value,
+            order: [
+              ['id', 'DESC'] // 'id' 필드를 기준으로 내림차순 정렬
+            ]
         });
         return [posts, "SUCCESS"];
     }catch(error){

@@ -1,4 +1,5 @@
 const {Comment} = require(process.env.SERVER_PATH + "/models");
+const {Op} = require('sequelize');
 
 const register = async (content, postId, userId) => {
     try{
@@ -35,7 +36,10 @@ const getCommentByPostId = async (postId, currentId, value) => {
                 postId,
                 ...option
             },
-            limit: value
+            limit: value,
+            order: [
+              ['id', 'DESC'] // 'id' 필드를 기준으로 내림차순 정렬
+            ]
         });
         return [comments, "SUCCESS"];
     }catch(error){

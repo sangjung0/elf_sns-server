@@ -51,7 +51,7 @@ const userList = async () => {
     }
 }
 
-const getImgByUserId = async (userId) => {
+const getUserInfoByUserId = async (userId) => {
     try{
         const user = await User.findOne({
             where:{
@@ -59,7 +59,7 @@ const getImgByUserId = async (userId) => {
             }
         });
         if (user){
-            return [user.dataValues.imageUrl, "SUCCESS"];
+            return [user.dataValues, "SUCCESS"];
         }else{
             return [new Error("user not found"), "FAILURE"];
         }
@@ -71,4 +71,4 @@ const getImgByUserId = async (userId) => {
 module.exports.register = register;
 module.exports.userList = userList;
 module.exports.verify = verify;
-module.exports.getImgByUserId = getImgByUserId;
+module.exports.getUserInfoByUserId = getUserInfoByUserId;

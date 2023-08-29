@@ -27,7 +27,8 @@ const sessionCheckMiddleware = async(req, res, next) => {
         next();
     }catch(err){
         console.error(err);
-        next();
+        res.status(500);
+        res.json({state:"ERROR"});
     }
 }
 

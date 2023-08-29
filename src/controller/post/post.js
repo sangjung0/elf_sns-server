@@ -9,12 +9,12 @@ const {totalPostFromUserIdArray, getPostFromUserIdArray} = require(PATH + '/src/
 const {getFriendIdFromUserId} = require(PATH + '/src/model/relation/friend');
 const {getImgByPostId} = require(PATH + '/src/model/post/image');
 const {getCommentByPostId} = require(PATH + '/src/model/post/comment');
-const {getImgByUserId} = require(PATH + '/src/model/auth/account');
+const {getUserInfoByUserId} = require(PATH + '/src/model/auth/account');
 
 router.post('/', async (req, res)=>{
     try{
-        const currentPage = req.body.currentPage;
-        const loadValue = req.body.loadValue;
+        const contentId = req.body.contentId;
+        const requestValue = req.body.requestValue;
         const userId = res.locals.userId;
         const [data,state] = await getFriendIdFromUserId(userId);
         if(state !== "SUCCESS"){
@@ -23,12 +23,11 @@ router.post('/', async (req, res)=>{
         const friendsArray = data.map((friend) => [friend.dataValues.UserId, friend.dataValues.FriendId]);
         const temp = friendsArray.flatMap(friend => Array.isArray(friend) ? friend : [friend]);
         const friends = Array.from(new Set(temp)).filter(id => userId !== id);
-        console.log(friends);
         const [totalPage, totalPageState] = await totalPostFromUserIdArray(friends);
         if(totalPageState !== "SUCCESS"){
             throw totalPage;
         }
-        const [posts, postsState] = await getPostFromUserIdArray(friends, currentPage, loadValue);
+        const [posts, postsState] = await getPostFromUserIdArray(friends, contentId, requestValue);
         if(postsState !== "SUCCESS"){
             throw posts;
         }
@@ -42,33 +41,35 @@ router.post('/', async (req, res)=>{
                 throw commentsState;
             }
             const commentsFunction = comments.map( async comment => {
-                const [profileImage, profileImageState] = await getImgByUserId(comment.userId);
-                if(profileImageState !== "SUCCESS"){
-                    throw profileImage;
+                const [userInfo, userInfoState] = await getUserInfoByUserId(comment.userId);
+                if(userInfoState !== "SUCCESS"){
+                    throw userInfo;
                 }
                 return {
                     commentId: comment.id,
                     author:{
                         id: comment.userId,
-                        img: profileImage
+                        img: userInfo.imageUrl,
+                        name: userInfo.name
                     },
-                    createAt: new Date(comment.createAt).getTime(),
+                    createdAt:comment.createdAt.getTime(),
                     comment: comment.content
                 }
             });
             const commentsArray = await Promise.all(commentsFunction);
             const imgsArray = imgs.map(img=>img.dataValues.url);
-            const [profileImage, profileImageState] = await getImgByUserId(post.userId);
-            if(profileImageState !== "SUCCESS"){
-                throw profileImage;
+            const [userInfo, userInfoState] = await getUserInfoByUserId(post.userId);
+            if(userInfoState !== "SUCCESS"){
+                throw userInfo;
             }
             return {
                 id:post.id,
                 author: {
                     id: post.userId,
-                    imgUrl: profileImage // 임시 설정.
+                    img: userInfo.imageUrl,
+                    name: userInfo.name
                 },
-                createAt: new Date(post.createAt).getTime(),
+                createdAt: post.createdAt.getTime(),
                 imgUrl: imgsArray,
                 content: post.content,
                 comments: commentsArray,
