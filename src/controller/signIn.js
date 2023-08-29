@@ -7,8 +7,8 @@ const PATH = process.env.SERVER_PATH;
 const EXPIRES = Number(process.env.EXPIRES);
 
 // model
-const {verify} = require(PATH + '/src/model/auth/account');
-const {register} = require(PATH + '/src/model/auth/session');
+const {verify} = require(PATH + '/src/model/account');
+const {register} = require(PATH + '/src/model/session');
 
 router.post('/', async (req, res)=>{
     try{

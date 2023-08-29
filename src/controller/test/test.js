@@ -6,11 +6,11 @@ const PATH = process.env.SERVER_PATH;
 
 // model
 const {makeFakeUserInfo, makeFakeFriend, makeFakePost, makeFakeComment} = require(PATH + '/src/model/faker/faker');
-const {register, userList} = require(PATH + '/src/model/auth/account');
-const friend = require(PATH + '/src/model/relation/friend');
-const postLib = require(PATH + '/src/model/post/post');
-const image = require(PATH + '/src/model/post/image');
-const commentLib = require(PATH + '/src/model/post/comment');
+const {register, userList} = require(PATH + '/src/model/account');
+const friend = require(PATH + '/src/model/friend');
+const postLib = require(PATH + '/src/model/post');
+const image = require(PATH + '/src/model/image');
+const commentLib = require(PATH + '/src/model/comment');
 
 router.post('/makeUserInfo', async (req, res)=>{
     try{

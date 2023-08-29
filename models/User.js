@@ -6,6 +6,7 @@ class User extends Sequelize.Model {
             id:{
                 type: Sequelize.UUID,
                 defaultValue: Sequelize.UUIDV4,
+                primaryKey: true,
                 allowNull: false,
                 primaryKey: true,
             },
@@ -52,7 +53,8 @@ class User extends Sequelize.Model {
         db.User.hasMany(db.Comment, {foreignKey: 'userId', sourceKey: "id"});
         db.User.hasMany(db.Post, {foreignKey: 'userId', sourceKey: "id"});
         db.User.hasOne(db.Session, {foreignKey: 'userId', sourceKey: "id"});
-        db.User.belongsToMany(db.User, { as: "Friends", through: 'FriendlyRelationship'})
+        db.User.hasMany(db.Friend, {foreignKey: 'UserId', sourceKey: "id"});
+        db.User.hasMany(db.Friend, {foreignKey: 'FriendId', sourceKey: "id"});
     }
 };
 

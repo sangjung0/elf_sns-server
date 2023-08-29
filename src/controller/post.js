@@ -5,18 +5,18 @@ const router = express.Router();
 const PATH = process.env.SERVER_PATH;
 
 // model
-const {totalPostFromUserIdArray, getPostFromUserIdArray} = require(PATH + '/src/model/post/post');
-const {getFriendIdFromUserId} = require(PATH + '/src/model/relation/friend');
-const {getImgByPostId} = require(PATH + '/src/model/post/image');
-const {getCommentByPostId} = require(PATH + '/src/model/post/comment');
-const {getUserInfoByUserId} = require(PATH + '/src/model/auth/account');
+const {totalPostFromUserIdArray, getPostFromUserIdArray} = require(PATH + '/src/model/post');
+const {getFriendFromUserId} = require(PATH + '/src/model/friend');
+const {getImgByPostId} = require(PATH + '/src/model/image');
+const {getCommentByPostId} = require(PATH + '/src/model/comment');
+const {getUserInfoByUserId} = require(PATH + '/src/model/account');
 
 router.post('/', async (req, res)=>{
     try{
         const contentId = req.body.contentId;
         const requestValue = req.body.requestValue;
         const userId = res.locals.userId;
-        const [data,state] = await getFriendIdFromUserId(userId);
+        const [data,state] = await getFriendFromUserId(userId);
         if(state !== "SUCCESS"){
             throw data;
         }

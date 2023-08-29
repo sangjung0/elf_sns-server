@@ -3,12 +3,40 @@ const {Op} = require('sequelize');
 
 const register = async (content, postId, userId) => {
     try{
-        const post = await Comment.create({
+        const result = await Comment.create({
             content,
             postId,
             userId
         });
-        return [post.dataValues.id, "SUCCESS"];
+        return [result.dataValues.id, "SUCCESS"];
+    }catch(error){
+        return [error, "ERROR"];
+    }
+}
+
+const modify = async (id, content) => {
+    try{
+        const result = await Comment.update({
+            content,
+        },{
+            where: {
+                id
+            }
+        });
+        return [result, "SUCCESS"];
+    }catch(error){
+        return [error, "ERROR"];
+    }
+}
+
+const remove = async (id) => {
+    try{
+        const result = await Comment.destroy({
+            where: {
+                id
+            }
+        });
+        return [result, "SUCCESS"];
     }catch(error){
         return [error, "ERROR"];
     }
@@ -50,3 +78,5 @@ const getCommentByPostId = async (postId, currentId, value) => {
 module.exports.register = register;
 module.exports.getCommentByPostId = getCommentByPostId;
 module.exports.totalCommentsFromPostId = totalCommentsFromPostId;
+module.exports.modify = modify;
+module.exports.remove = remove;

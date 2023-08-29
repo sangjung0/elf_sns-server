@@ -6,7 +6,7 @@ const router = express.Router();
 const PATH = process.env.SERVER_PATH;
 
 // model
-const {verify} = require(PATH + '/src/model/auth/session');
+const {verify} = require(PATH + '/src/model/session');
 
 const sessionCheck = async(req) => {
     const sessionId = req.cookies.SESSION;

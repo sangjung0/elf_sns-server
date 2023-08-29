@@ -6,7 +6,7 @@ const router = express.Router();
 const PATH = process.env.SERVER_PATH;
 
 // model
-const {register} = require(PATH + '/src/model/auth/account');
+const {register} = require(PATH + '/src/model/account');
 
 router.post('/', async (req, res)=>{
     try{

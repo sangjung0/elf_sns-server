@@ -8,12 +8,13 @@ const router = express.Router();
 const PATH = process.env.SERVER_PATH;
 
 // children routes
-const signUp = require('./auth/signUp');
-const signIn = require('./auth/signIn');
-const {sessionCheckMiddleware, sessionCheck} = require('./auth/sessionCheck');
-const post = require('./post/post');
+const signUp = require('./signUp');
+const signIn = require('./signIn');
+const {sessionCheckMiddleware, sessionCheck} = require('./sessionCheck');
+const post = require('./post');
 const test = require('./test/test');
-const comment = require('./post/comment');
+const comment = require('./comment');
+const friend = require('./friend');
 
 router.use('/public',express.static(PATH+"/src/view"));
 router.use('/signUp', signUp);
@@ -24,7 +25,8 @@ router.use('/test', test);
 
 router.use('/', sessionCheckMiddleware);
 router.use('/getContents', post);
-router.use('/getComments', comment);
+router.use('/comment', comment);
+router.use('/friend', friend);
 
 router.use((req,res,next) => {
     res.status(404);

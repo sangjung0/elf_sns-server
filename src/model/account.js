@@ -1,4 +1,5 @@
 const {User} = require(process.env.SERVER_PATH + "/models");
+const {Op} = require('sequelize');
 
 const register = async (email, password, name, phoneNumber, imageUrl) => {
     try{
@@ -51,11 +52,11 @@ const userList = async () => {
     }
 }
 
-const getUserInfoByUserId = async (userId) => {
+const getUserInfoByUserId = async (id) => {
     try{
         const user = await User.findOne({
             where:{
-                id: userId,
+                id,
             }
         });
         if (user){
@@ -68,7 +69,27 @@ const getUserInfoByUserId = async (userId) => {
     }
 }
 
+const searchUser = async(name, requestValue) => {
+    try{
+        const users = await User.findAll({
+            where: {
+                name:{
+                    [Op.like]: `%${name}%`
+                }
+            },
+            order:[
+                ['name', 'DESC']
+              ],
+            limite: requestValue
+        });
+        return [users, "SUCCESS"];
+    }catch(error){
+        return [error, "ERROR"];
+    }
+}
+
 module.exports.register = register;
 module.exports.userList = userList;
 module.exports.verify = verify;
 module.exports.getUserInfoByUserId = getUserInfoByUserId;
+module.exports.searchUser = searchUser;
