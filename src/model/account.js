@@ -69,16 +69,18 @@ const getUserInfoByUserId = async (id) => {
     }
 }
 
-const searchUser = async(name, requestValue) => {
+const searchUser = async(name, currentName, requestValue) => {
     try{
+        const option = currentName ? {name: {[Op.gt]: currentName}}: {};
         const users = await User.findAll({
             where: {
                 name:{
                     [Op.like]: `%${name}%`
-                }
+                },
+                ...option
             },
             order:[
-                ['name', 'DESC']
+                ['name', 'ASC']
               ],
             limite: requestValue
         });

@@ -4,10 +4,10 @@ const {Op} = require('sequelize');
 const register = async (userId1, userId2) => {
     try{
         const [data,state] = await verify(userId1, userId2);
-        if(state !== "FAILURE"){
+        if(state !== "SUCCESS"){
             throw data;
         }
-        if(data){
+        if(!data){
             await Friend.create({
                 UserId: userId1,
                 FriendId: userId2
@@ -19,11 +19,14 @@ const register = async (userId1, userId2) => {
     }
 }
 
-const remove = async (id) => {
+const remove = async (userId1, userId2) => {
     try{
         await Friend.destroy({
             where: {
-                id
+                [Op.or]: [
+                  { UserId: userId1, FriendId: userId2 },
+                  { UserId: userId2, FriendId: userId1 }
+                ]
             },
         });
         return [null, "SUCCESS"];
@@ -53,21 +56,16 @@ const verify = async (userId1, userId2) => {
     }
 }
 
-const getFriendFromUserId = async(userId, currentId=null, value=null) => {
+const getFriendFromUserId = async(userId, value=null) => {
     try{
-        const option = currentId ? {id: {[Op.lt]: currentId}}: {};
         const limit = value ? {limite: value} : {};
         const friends = await Friend.findAll({
             where: {
                 [Op.or]: [
                   { UserId: userId },
                   { FriendId: userId }
-                ],
-                ...option
+                ]
             },
-            order:[
-                ['id', 'DESC'] // 'id' 필드를 기준으로 내림차순 정렬
-              ],
             ...limit,
         });
         if (friends){

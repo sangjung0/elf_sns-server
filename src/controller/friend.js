@@ -5,18 +5,18 @@ const router = express.Router();
 const PATH = process.env.SERVER_PATH;
 
 // model
-const { getFriendFromUserId, getTotalFriendFromUserId, remove, verify } = require(PATH + '/src/model/friend');
+const { getFriendFromUserId, getTotalFriendFromUserId, remove, verify, register } = require(PATH + '/src/model/friend');
 const {getUserInfoByUserId, searchUser} = require(PATH + '/src/model/account');
 
 router.post('/get', async (req, res)=>{
     try{
         const userId = res.locals.userId;
-        const currentId = req.body.currentId;
+        const currentName = req.body.currentName;
         const requestValue = req.body.requestValue;
         const friendName = req.body.friendName;
 
         
-        const [friendArray, state] = friendName === "" ? await getFriendFromUserId(userId, currentId, requestValue): await searchUser(friendName, requestValue);
+        const [friendArray, state] = friendName === "" ? await getFriendFromUserId(userId, requestValue): await searchUser(friendName, currentName, requestValue);
         if(state !== "SUCCESS"){
             throw friendArray;
         }
@@ -28,14 +28,9 @@ router.post('/get', async (req, res)=>{
 
         const friendFunction = friendArray.map( async f=>{
             //이상한 코드 탄생~ let을 안쓰겠다는 마음가짐~
-            const [friend, id ] = friendName === "" ? 
-                [
-                    f.dataValues.UserId === userId ? f.dataValues.FriendId : f.dataValues.UserId,
-                    f.dataValues.id
-                ]:[
-                    f.dataValues.id,
-                    f.dataValues.id
-                ];
+            const friend = friendName === "" ? 
+                f.dataValues.UserId === userId ? f.dataValues.FriendId : f.dataValues.UserId
+                :f.dataValues.id;
             const [[userInfo, state], [isFriend, isFriendState]] = friendName === "" ? 
                 [
                     await getUserInfoByUserId(friend),
@@ -52,15 +47,15 @@ router.post('/get', async (req, res)=>{
             }
 
             return {
-                id,
-                userId: friend,
+                id: friend,
                 img: userInfo.imageUrl,
                 name: userInfo.name,
                 isFriend
             }
         })
 
-        const friends = await Promise.all(friendFunction);
+        const friendsTemp = await Promise.all(friendFunction);
+        const friends = friendName === "" ? friendsTemp.sort((a,b) => a.name.localeCompare(b.name)):friendsTemp;
 
         res.json({
             state: "SUCCESS",
@@ -80,8 +75,29 @@ router.post('/get', async (req, res)=>{
 router.post('/remove', async (req, res)=>{
     try{
         const id = req.body.id;
+        const userId = res.locals.userId;
 
-        const [result, state] = await remove(id);
+        const [result, state] = await remove(id, userId);
+        if(state !== "SUCCESS"){
+            throw result;
+        }
+        res.json({
+            state: "SUCCESS"
+        });
+
+    }catch(err){
+        console.error(err);
+        res.status(500);
+        res.json({state:"ERROR"});
+    }
+});
+
+router.post('/add', async (req, res)=>{
+    try{
+        const id = req.body.id;
+        const userId = res.locals.userId;
+
+        const [result, state] = await register(userId, id);
         if(state !== "SUCCESS"){
             throw result;
         }
