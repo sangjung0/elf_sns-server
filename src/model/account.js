@@ -52,6 +52,7 @@ const userList = async () => {
     }
 }
 
+
 const getUserInfoByUserId = async (id) => {
     try{
         const user = await User.findOne({
@@ -69,20 +70,21 @@ const getUserInfoByUserId = async (id) => {
     }
 }
 
-const searchUser = async(name, currentName, requestValue) => {
+const searchUser = async(string, currentName=null, requestValue=null) => {
     try{
-        const option = currentName ? {name: {[Op.gt]: currentName}}: {};
+        const option = currentName ? {[Op.gt]:  currentName }: {};
+        const limit = requestValue ? {limite: requestValue} : {};
         const users = await User.findAll({
             where: {
                 name:{
-                    [Op.like]: `%${name}%`
+                    [Op.like]: `%${string}%`,
+                    ...option
                 },
-                ...option
             },
             order:[
                 ['name', 'ASC']
               ],
-            limite: requestValue
+            ...limit,
         });
         return [users, "SUCCESS"];
     }catch(error){
@@ -90,8 +92,25 @@ const searchUser = async(name, currentName, requestValue) => {
     }
 }
 
+const getTotalUserByIncludeString = async (string) => {
+    try{
+        const count = await User.count({
+            where: {
+                name:{
+                    [Op.like]: `%${string}%`
+                },
+            },
+        });
+        return [count, "SUCCESS"];
+    }catch(error){
+        return [error, "ERROR"];
+    }
+
+}
+
 module.exports.register = register;
 module.exports.userList = userList;
 module.exports.verify = verify;
 module.exports.getUserInfoByUserId = getUserInfoByUserId;
 module.exports.searchUser = searchUser;
+module.exports.getTotalUserByIncludeString = getTotalUserByIncludeString;

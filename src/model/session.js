@@ -6,7 +6,7 @@ const register = async (sessionId, expires, userId) => {
         switch (status){
             case "SUCCESS":
                 await Session.update({
-                    expires: expires,
+                    expires,
                     userId
                 },{
                     where: {
@@ -15,10 +15,10 @@ const register = async (sessionId, expires, userId) => {
                 })
                 return [null, "SUCCESS"];
             case "FAILURE":
-                removeByuserId(userId);
+                await removeByuserId(userId);
                 await Session.create({
                     id: sessionId,
-                    expires: expires,
+                    expires,
                     userId
                 });
                 return [null, "SUCCESS"];
@@ -51,7 +51,7 @@ const removeByuserId = async (userId) => {
     try{
         const session = await Session.findOne({
             where:{
-                userId:userId,
+                userId,
             }
         })
         await session.destroy();

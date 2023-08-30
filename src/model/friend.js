@@ -1,16 +1,18 @@
 const {Friend} = require(process.env.SERVER_PATH + "/models");
+const {User} = require(process.env.SERVER_PATH + "/models");
+const {literal} = require('sequelize');
 const {Op} = require('sequelize');
 
-const register = async (userId1, userId2) => {
+const register = async (userId, friendId) => {
     try{
-        const [data,state] = await verify(userId1, userId2);
+        const [data,state] = await verify(userId, friendId);
         if(state !== "SUCCESS"){
             throw data;
         }
         if(!data){
             await Friend.create({
-                UserId: userId1,
-                FriendId: userId2
+                userId,
+                friendId
             });
         }
         return [null, "SUCCESS"];
@@ -19,14 +21,12 @@ const register = async (userId1, userId2) => {
     }
 }
 
-const remove = async (userId1, userId2) => {
+const remove = async (userId, friendId) => {
     try{
         await Friend.destroy({
             where: {
-                [Op.or]: [
-                  { UserId: userId1, FriendId: userId2 },
-                  { UserId: userId2, FriendId: userId1 }
-                ]
+                userId, 
+                friendId 
             },
         });
         return [null, "SUCCESS"];
@@ -35,14 +35,12 @@ const remove = async (userId1, userId2) => {
     }
 }
 
-const verify = async (userId1, userId2) => {
+const verify = async (userId, friendId) => {
     try{
         const user = await Friend.findOne({
             where: {
-                [Op.or]: [
-                  { UserId: userId1, FriendId: userId2 },
-                  { UserId: userId2, FriendId: userId1 }
-                ]
+                userId, 
+                friendId 
             },
         });
 
@@ -56,17 +54,25 @@ const verify = async (userId1, userId2) => {
     }
 }
 
-const getFriendFromUserId = async(userId, value=null) => {
+const getFriendFromUserId = async(userId, currentName=null, requestValue=null) => {
     try{
-        const limit = value ? {limite: value} : {};
+        const option = currentName ? {[Op.and]: literal(`FriendId.name > '${currentName}'`) }: {};
+        const limit = requestValue ? {limite: requestValue} : {};
         const friends = await Friend.findAll({
+            include: [
+                {
+                    model: User,
+                    attributes: ['name'],
+                    as: 'FriendId',
+                    required: true
+                }
+            ],
             where: {
-                [Op.or]: [
-                  { UserId: userId },
-                  { FriendId: userId }
-                ]
+                userId,
+                ...option
             },
             ...limit,
+            order:[[literal('FriendId.name'), 'ASC']]
         });
         if (friends){
             return [friends, "SUCCESS"];
@@ -83,10 +89,7 @@ const getTotalFriendFromUserId = async(userId) => {
     try{
         const count = await Friend.count({
             where: {
-                [Op.or]: [
-                  { UserId: userId },
-                  { FriendId: userId }
-                ],
+                userId
             }
         });
         return [count, "SUCCESS"];

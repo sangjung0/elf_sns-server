@@ -20,9 +20,7 @@ router.post('/', async (req, res)=>{
         if(state !== "SUCCESS"){
             throw data;
         }
-        const friendsArray = data.map((friend) => [friend.dataValues.UserId, friend.dataValues.FriendId]);
-        const temp = friendsArray.flatMap(friend => Array.isArray(friend) ? friend : [friend]);
-        const friends = Array.from(new Set(temp)).filter(id => userId !== id);
+        const friends = data.map((friend) => friend.dataValues.friendId);
         const [totalPage, totalPageState] = await totalPostFromUserIdArray(friends);
         if(totalPageState !== "SUCCESS"){
             throw totalPage;
@@ -53,7 +51,7 @@ router.post('/', async (req, res)=>{
                         name: userInfo.name
                     },
                     createdAt:comment.createdAt.getTime(),
-                    comment: comment.content
+                    content: comment.content
                 }
             });
             const commentsArray = await Promise.all(commentsFunction);

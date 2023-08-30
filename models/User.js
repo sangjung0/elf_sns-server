@@ -54,8 +54,8 @@ class User extends Sequelize.Model {
         db.User.hasMany(db.Comment, {foreignKey: 'userId', sourceKey: "id"});
         db.User.hasMany(db.Post, {foreignKey: 'userId', sourceKey: "id"});
         db.User.hasOne(db.Session, {foreignKey: 'userId', sourceKey: "id"});
-        db.User.hasMany(db.Friend, {foreignKey: 'UserId', sourceKey: "id"});
-        db.User.hasMany(db.Friend, {foreignKey: 'FriendId', sourceKey: "id"});
+        db.User.hasMany(db.Friend, {foreignKey: 'userId', sourceKey: "id", as:"UserId"});
+        db.User.hasMany(db.Friend, {foreignKey: 'friendId', sourceKey: "id", as:"FriendId"});
     }
 };
 
