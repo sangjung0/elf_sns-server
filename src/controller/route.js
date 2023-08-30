@@ -16,7 +16,7 @@ const test = require('./test/test');
 const comment = require('./comment');
 const friend = require('./friend');
 
-router.use('/public',express.static(PATH+"/src/view"));
+router.use('/image',express.static(PATH+"/src/view/image"));
 router.use('/signUp', signUp);
 router.use('/signIn', signIn);
 router.use('/sessionCheck', sessionCheck);

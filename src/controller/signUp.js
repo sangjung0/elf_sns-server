@@ -4,6 +4,7 @@ const router = express.Router();
 
 //env
 const PATH = process.env.SERVER_PATH;
+const DOMAIN = process.env.SERVER_DOMAIN;
 
 // model
 const {register} = require(PATH + '/src/model/account');
@@ -14,7 +15,7 @@ router.post('/', async (req, res)=>{
         const password = req.body.password;
         const name = req.body.name;
         const phoneNumber = req.body.phoneNumber;
-        const imageUrl = "/image/defaultImage.jpg";
+        const imageUrl = DOMAIN+"/image/defaultImage.jpg";
         const [data, status] = await register(email, password, name, phoneNumber, imageUrl);
         switch(status) {
             case "SUCCESS":
