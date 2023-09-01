@@ -1,5 +1,5 @@
 const {User} = require(process.env.SERVER_PATH + "/models");
-const {Op} = require('sequelize');
+const {Op, literal} = require('sequelize');
 
 const register = async (email, password, name, phoneNumber, imageUrl) => {
     try{
@@ -72,14 +72,14 @@ const getUserInfoByUserId = async (id) => {
 
 const searchUser = async(string, currentName=null, requestValue=null) => {
     try{
-        const option = currentName ? {[Op.gt]:  currentName }: {};
-        const limit = requestValue ? {limite: requestValue} : {};
+        const option = currentName ? {[Op.and]: literal(`name > '${currentName}'`)}: {};
+        const limit = requestValue ? {limit: requestValue} : {};
         const users = await User.findAll({
             where: {
                 name:{
-                    [Op.like]: `%${string}%`,
-                    ...option
+                    [Op.like]: `%${string}%`
                 },
+                ...option
             },
             order:[
                 ['name', 'ASC']

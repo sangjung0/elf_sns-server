@@ -57,7 +57,7 @@ const verify = async (userId, friendId) => {
 const getFriendFromUserId = async(userId, currentName=null, requestValue=null) => {
     try{
         const option = currentName ? {[Op.and]: literal(`FriendId.name > '${currentName}'`) }: {};
-        const limit = requestValue ? {limite: requestValue} : {};
+        const limit = requestValue ? {limit: requestValue} : {};
         const friends = await Friend.findAll({
             include: [
                 {

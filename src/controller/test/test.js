@@ -98,12 +98,8 @@ router.post('/makeComments', async (req, res)=>{
         const usersArray = users.map(user => user.dataValues.id);
         const postsArray = posts.map(post => post.dataValues.id);
         const comments = await makeFakeComment(seed, length, usersArray, postsArray);
-        console.log(comments);
         comments.forEach( async comment => {
-            const [data, state] = await commentLib.register(comment.content, comment.postId, comment.userId )
-            if (state !== "SUCCESS") {
-                throw data;
-            }
+            await commentLib.register(comment.content, comment.postId, comment.userId )
         })
         res.send(comments);
 
