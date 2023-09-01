@@ -7,13 +7,18 @@ const PATH = process.env.SERVER_PATH;
 
 // model
 const {verify} = require(PATH + '/src/model/session');
+const {getUserInfoByUserId} = require(PATH + '/src/model/account');
 
 const sessionCheck = async(req) => {
     const sessionId = req.cookies.SESSION;
-    const [data, status] = await verify(sessionId);
-    switch(status) {
+    const [data, state] = await verify(sessionId);
+    switch(state) {
         case "SUCCESS":
-            return {state:"SUCCESS", payload: {userId: data.userId}};
+            const [userInfo, state] = await getUserInfoByUserId(data.userId);
+            if ( state !== "SUCCESS" ) {
+                throw userInfo;
+            }
+            return {state:"SUCCESS", payload: {id: data.userId, img: userInfo.imageUrl}};
         case "FAILURE":
             return {state:"FAILURE", data};
         default:
@@ -23,7 +28,7 @@ const sessionCheck = async(req) => {
 
 const sessionCheckMiddleware = async(req, res, next) => {
     try{
-        res.locals.userId = (await sessionCheck(req)).payload.userId;
+        res.locals.userId = (await sessionCheck(req)).payload.id;
         next();
     }catch(err){
         console.error(err);

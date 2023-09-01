@@ -10,7 +10,7 @@ require('dotenv').config();
 const config = JSON.parse(process.env.DATABASE_ACCOUNT);
 const db = {};
 
-const sequelize = new Sequelize(config.database, config.user, config.password, config);
+const sequelize = new Sequelize(config.database, config.user, config.password, {...config, logging:false});
 
 db.sequelize = sequelize;
 
