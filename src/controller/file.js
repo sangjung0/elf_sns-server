@@ -7,7 +7,7 @@ const fs = require('fs').promises;
 
 //env
 const PATH = process.env.SERVER_PATH;
-const SERVER_DOMAIN = process.env.SERVER_DOMAIN;
+const SERVER_DOMAIN = process.env.SERVER_DOMAIN ?? "";
 
 // model
 const {updateUserImg} = require(PATH + '/src/model/account');

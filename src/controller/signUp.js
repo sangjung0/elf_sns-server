@@ -4,7 +4,7 @@ const router = express.Router();
 
 //env
 const PATH = process.env.SERVER_PATH;
-const DOMAIN = process.env.SERVER_DOMAIN;
+const DOMAIN = process.env.SERVER_DOMAIN ?? "";
 
 // model
 const { register } = require(PATH + '/src/model/account');
