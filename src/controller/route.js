@@ -17,7 +17,18 @@ const comment = require('./comment');
 const friend = require('./friend');
 const file = require('./file');
 
+//react
+const react = PATH+'/src/view';
+
 router.use('/image',express.static(PATH+"/src/view/image"));
+router.use('/img',express.static(PATH+"/src/view/img"));
+router.use('/static/css',express.static(PATH+"/src/view/static/css"));
+router.use('/static/js',express.static(PATH+"/src/view/static/js"));
+router.use('/',express.static(PATH+"/src/view"));
+
+router.get("*", (req, res) => {
+  res.sendFile(react + "/index.html");
+});
 router.use('/image/profile',express.static(PATH+"/src/view/image/profile"));
 router.use('/signUp', signUp);
 router.use('/signIn', signIn);

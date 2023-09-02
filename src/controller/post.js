@@ -167,8 +167,27 @@ router.post('/getMy', async (req, res) => {
     }
 })
 
-router.post('/remove', async (req, res) => {
-
+router.post('/upload', async (req, res) => {
+    try{
+        const userId = res.locals.userId;
+        if (!req.file) {
+          return res.status(400).json({ message: '파일을 찾을 수 없습니다.' });
+        }
+        
+        const point = req.file.originalname.lastIndexOf('.');
+        const extension = req.file.originalname.slice(point);
+        await fs.rename(req.file.path, `${uploadDirectory}/${userId}${extension}`);
+        const fileLocation = SERVER_DOMAIN + `/image/profile/${userId}${extension}`;
+        const [response, state] = await updateUserImg(userId, fileLocation);
+        if(state !== 'SUCCESS'){
+            throw response;
+        }
+        res.json({state:"SUCCESS"});
+    }catch(err){
+        console.error(err);
+        res.status(500);
+        res.json({state:"ERROR"});
+    }
 })
 
 router.post('/modify', async (req, res) => {
