@@ -11,7 +11,7 @@ const { getImgByPostId } = require(PATH + '/src/model/image');
 const { getCommentByPostId } = require(PATH + '/src/model/comment');
 const { getUserInfoByUserId } = require(PATH + '/src/model/account');
 
-router.post('/', async (req, res) => {
+router.post('/get', async (req, res) => {
     try {
         const contentId = req.body.contentId;
         const requestValue = req.body.requestValue;
@@ -91,8 +91,80 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.post('/add', async (req, res) => {
+router.post('/getMy', async (req, res) => {
+    try {
+        const contentId = req.body.contentId;
+        const requestValue = req.body.requestValue;
+        const userId = res.locals.userId;
+        
+        const [totalPage, totalPageState] = await totalPostFromUserIdArray([userId]);
+        if (totalPageState !== "SUCCESS") {
+            throw totalPage;
+        }
+        const [posts, postsState] = await getPostFromUserIdArray([userId], contentId, requestValue);
+        if (postsState !== "SUCCESS") {
+            throw posts;
+        }
+        const [userInfo, userInfoState] = await getUserInfoByUserId(userId);
+        if (userInfoState !== "SUCCESS") {
+            throw userInfo;
+        }
+        const postsFunction = posts.map(async post => {
+            const [imgs, state] = await getImgByPostId(post.id);
+            if (state !== "SUCCESS") {
+                throw imgs;
+            }
+            const [comments, commentsState] = await getCommentByPostId(post.id, null, 10);
+            if (commentsState !== "SUCCESS") {
+                throw commentsState;
+            }
+            const commentsFunction = comments.map(async comment => {
+                const [userInfo, userInfoState] = await getUserInfoByUserId(comment.userId);
+                if (userInfoState !== "SUCCESS") {
+                    throw userInfo;
+                }
+                return {
+                    commentId: comment.id,
+                    author: {
+                        id: comment.userId,
+                        img: userInfo.imageUrl,
+                        name: userInfo.name
+                    },
+                    createdAt: comment.createdAt.getTime(),
+                    content: comment.content
+                }
+            });
+            const commentsArray = await Promise.all(commentsFunction);
+            const imgsArray = imgs.map(img => img.dataValues.url);
+            return {
+                id: post.id,
+                author: {
+                    id: post.userId,
+                    img: userInfo.imageUrl,
+                    name: userInfo.name
+                },
+                createdAt: post.createdAt.getTime(),
+                imgUrl: imgsArray,
+                content: post.content,
+                comments: commentsArray,
+                tags: ["사람", "css", "뒤져", "망할", "리액트", "버튜얼라이즈", "사라져"] //임시 설정
+            }
+        });
 
+        const postsArray = await Promise.all(postsFunction);
+        res.json({
+            state: "SUCCESS",
+            payload: {
+                totalPage: totalPage,
+                data: postsArray
+            }
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500);
+        res.json({ state: "ERROR" });
+    }
 })
 
 router.post('/remove', async (req, res) => {

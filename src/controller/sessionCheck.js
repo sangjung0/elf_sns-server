@@ -8,6 +8,7 @@ const PATH = process.env.SERVER_PATH;
 // model
 const {verify} = require(PATH + '/src/model/session');
 const {getUserInfoByUserId} = require(PATH + '/src/model/account');
+const {getTotalFriendFromUserId} = require(PATH + '/src/model/friend');
 
 const sessionCheck = async(req) => {
     const sessionId = req.cookies.SESSION;
@@ -18,7 +19,12 @@ const sessionCheck = async(req) => {
             if ( state !== "SUCCESS" ) {
                 throw userInfo;
             }
-            return {state:"SUCCESS", payload: {id: data.userId, img: userInfo.imageUrl}};
+            const [totalFriend, totalFriendState] = await getTotalFriendFromUserId(data.userId);
+            if ( totalFriendState !== "SUCCESS" ) {
+                throw totalFriend;
+            }
+
+            return {state:"SUCCESS", payload: {id: data.userId, img: userInfo.imageUrl, name: userInfo.name, friendNumber: totalFriend}};
         case "FAILURE":
             return {state:"FAILURE", data};
         default:

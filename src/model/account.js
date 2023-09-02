@@ -105,7 +105,26 @@ const getTotalUserByIncludeString = async (string) => {
     }catch(error){
         return [error, "ERROR"];
     }
+}
 
+const updateUserImg = async (id, imageUrl) => {
+    try{
+        const user = await User.update(
+            {
+                imageUrl
+            },{
+                where: {
+                    id
+                },
+            }
+        );
+        if(user != 0){
+            return [user, "SUCCESS"];
+        }
+        return [user, "FAILURE"];
+    }catch(error){
+        return [error, "ERROR"];
+    }
 }
 
 module.exports.register = register;
@@ -114,3 +133,4 @@ module.exports.verify = verify;
 module.exports.getUserInfoByUserId = getUserInfoByUserId;
 module.exports.searchUser = searchUser;
 module.exports.getTotalUserByIncludeString = getTotalUserByIncludeString;
+module.exports.updateUserImg = updateUserImg;
